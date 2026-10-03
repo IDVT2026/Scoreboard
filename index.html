@@ -2,56 +2,229 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>intdeptvolleyballtournament-BTDH</title>
-</head>
-<body>
-  <iframe id="launcherIframe" 
-    src=""
-    referrerpolicy="no-referrer"
-    allowfullscreen
-    allow="fullscreen">
-  </iframe>
-  <button id="externalFullscreenBtn" class="external-fullscreen" title="Full screen">⤢</button>
-  <!-- Temporary overlay for first click -->
-  <div id="firstClickOverlay" class="click-capture-overlay"></div>
-
-  <script>
-    const baseUrl = 'https://script.google.com/macros/s/AKfycbyqQQMdcm7Me2RHe2hMuXsm97rdNlK-rU0n04pdOF85RY5LQTlZz71u5Dfu03Q0BLRc/exec?mode=scoreboard';
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-    const iframe = document.getElementById('launcherIframe');
-    iframe.src = isMobile ? baseUrl + '?mode=mobile' : baseUrl;
-
-    const btn = document.getElementById('externalFullscreenBtn');
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(console.warn);
-      } else {
-        document.exitFullscreen();
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>IDVT 2026 Live Score</title>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/IDVT2026/BTDH/main/Tournament%20Logo%20PNG.png">
+  <meta name="description" content="Live scores, schedule, and standings for the Interdepartmental Volleyball Tournament 2026">
+  <!-- Open Graph / WhatsApp / Facebook / LinkedIn -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://idvt2026.github.io/BTDH/">
+  <meta property="og:title" content="Interdepartmental Volleyball Tournament 2026">
+  <meta property="og:description" content="Live scores, schedule, and standings for the Inter-Departmental Volleyball Tournament 2026">
+  <meta property="og:image" content="https://raw.githubusercontent.com/IDVT2026/BTDH/main/Tournament%20Logo%20PNG.png">
+  <meta property="og:image:secure_url" content="https://raw.githubusercontent.com/IDVT2026/BTDH/main/Tournament%20Logo%20PNG.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Tournament Live Score">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://idvt2026.github.io/BTDH/">
+  <meta name="twitter:title" content="Interdepartmental Volleyball Tournament 2026">
+  <meta name="twitter:description" content="Live scores, schedule, and standings for the Interdepartmental Volleyball Tournament 2026">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/IDVT2026/BTDH/main/Tournament%20Logo%20PNG.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    /* Hide scrollbars across all browsers while keeping screen fitted */
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden !important;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+      background-color: #0f172a;
+      -webkit-font-smoothing: antialiased;
+    }
+    html::-webkit-scrollbar, body::-webkit-scrollbar, #frame-wrapper::-webkit-scrollbar, iframe::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+    #frame-wrapper {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden !important;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+      -webkit-overflow-scrolling: touch;
+    }
+    #app-frame {
+      width: 100%;
+      height: 100%;
+      min-width: 100%;
+      min-height: 100%;
+      border: 0 !important;
+      outline: none !important;
+      display: block;
+      overflow: hidden !important;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+    .splash-logo-img { max-height: 64px; width: auto; }
+    #splash-screen {
+      position: fixed;
+      inset: 0;
+      background: #0f172a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      gap: 16px;
+      z-index: 100;
+      animation: splash-in 0.5s ease forwards;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: auto;
+    }
+    #splash-screen.exiting {
+      opacity: 0;
+      transform: translateY(-30px);
+      pointer-events: none;
+    }
+    .splash-subtitle {
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      font-size: clamp(11px, 2.5vw, 14px);
+      color: #64748b;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .splash-spinner {
+      width: 40px;
+      height: 40px;
+      margin-top: 12px;
+      position: relative;
+    }
+    .splash-spinner::before,
+    .splash-spinner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.08);
+    }
+    .splash-spinner::before {
+      border-top-color: #38bdf8;
+      animation: spin 0.8s linear infinite;
+    }
+    .splash-spinner::after {
+      border: 3px solid rgba(255, 255, 255, 0.05);
+      border-bottom-color: #64748b;
+      animation: spin 1.4s linear infinite reverse;
+    }
+    .splash-status {
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+      min-height: 18px;
+      transition: opacity 0.3s ease;
+    }
+    @keyframes splash-in {
+      from {
+        opacity: 0;
+        transform: scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
       }
     }
-    btn.addEventListener('click', toggleFullscreen);
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="splash-screen">
+    <img class="splash-logo-img" src="https://raw.githubusercontent.com/IDVT2026/BTDH/main/Logo%20-%20White.png" />
+    <div class="splash-subtitle">Interdepartmental Volleyball Tournament 2026</div>
+    <div class="splash-spinner"></div>
+    <div class="splash-status" id="splash-status">Launching application...</div>
+  </div>
 
-    document.addEventListener('fullscreenchange', () => {
-      btn.textContent = document.fullscreenElement ? '✕' : '⤢';
-      btn.title = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+  <div id="frame-wrapper">
+    <iframe
+      id="app-frame"
+      src="https://script.google.com/macros/s/AKfycbwreJg77D-k4Cm36_PcyV9axDKk237mQ1Wfgo7zb7Om9Dnw5A4YV70CkFF1c4wtIIi9/exec?mode=scoreboard"
+      scrolling="no"
+      frameborder="0"
+      allow="accelerometer; autoplay; camera; clipboard-read; clipboard-write; encrypted-media; fullscreen; geolocation; gyroscope; microphone; midi; payment"
+      sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-downloads"
+    ></iframe>
+  </div>
+
+<script>
+(function() {
+  var splash = document.getElementById('splash-screen');
+  var status = document.getElementById('splash-status');
+  var frame = document.getElementById('app-frame');
+  var timeout;
+  var ready = false;
+
+  function hideSplash() {
+    if (ready) return;
+    ready = true;
+    if (!splash) return;
+    splash.classList.add('exiting');
+    setTimeout(function() {
+      if (splash && splash.parentNode) {
+        splash.parentNode.removeChild(splash);
+      }
+    }, 500);
+  }
+
+  function setStatus(msg) {
+    if (!status) return;
+    status.textContent = msg;
+  }
+
+  // The app posts this once it has real content on screen. The iframe's own load event fires
+  // as soon as the document arrives, which is long before any data does, so using it here just
+  // revealed an empty panel.
+  window.addEventListener('message', function(e) {
+    if (e && e.data && e.data.type === 'idvt-ready') {
+      clearTimeout(timeout);
+      hideSplash();
+    }
+  });
+
+  if (frame) {
+    frame.addEventListener('load', function() {
+      // Do not hide the splash here; only the ready signal clears it. Kept so a hard failure
+      // can still be reported.
+      console.log('iframe document loaded, waiting for app ready signal');
     });
 
-    // --- First click anywhere (captured by overlay) ---
-    const overlay = document.getElementById('firstClickOverlay');
-    overlay.addEventListener('click', function onFirstClick() {
-      // Remove overlay immediately
-      overlay.removeEventListener('click', onFirstClick);
-      overlay.remove();
-      // Enter full‑screen
-      document.documentElement.requestFullscreen().catch(console.warn);
+    frame.addEventListener('error', function() {
+      clearTimeout(timeout);
+      setStatus('Connection error. Please try again.');
     });
-    // Also for touch devices
-    overlay.addEventListener('touchstart', function onFirstTouch() {
-      overlay.removeEventListener('touchstart', onFirstTouch);
-      overlay.remove();
-      document.documentElement.requestFullscreen().catch(console.warn);
-    });
-  </script>
+  }
+
+  timeout = setTimeout(function() {
+    setStatus('Taking longer than expected — please wait...');
+  }, 15000);
+
+  // Backstop. If the ready signal is ever missed (a Google wrapper change, a blocked message,
+  // a render path that does not call signalFirstPaint_) the splash would otherwise cover a
+  // perfectly working app forever. The iframe is already visible underneath, so revealing it
+  // late is always better than never.
+  setTimeout(function() {
+    if (!ready) {
+      console.warn('Ready signal not received; revealing app as a fallback.');
+      hideSplash();
+    }
+  }, 20000);
+})();
+</script>
 </body>
 </html>
